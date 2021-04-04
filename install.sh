@@ -51,6 +51,7 @@ cd submodules/blynk-library/linux || exit 1
 cmd make clean all target=raspberry
 
 # Install executables
+cmd cd "$top_dir" || exit 1
 dest="$PREFIX/bin"
 cmd mkdir -p "$dest"
 for f in "$top_dir"/bin/*;do
@@ -63,6 +64,7 @@ for f in "$top_dir"/bin/*;do
 done
 
 # Service
+cmd cd "$top_dir" || exit 1
 services=()
 for f in ./etc/systemd/system/*;do
   if [ ! -f "$f" ];then
