@@ -70,7 +70,7 @@ for f in ./etc/systemd/system/*;do
   if [ ! -f "$f" ];then
     continue
   fi
-  dest_file=$(/etc/systemd/system/$(basename "$f")
+  dest_file=/etc/systemd/system/$(basename "$f")
   cmd sudo cp "$f" "$dest_file"
   cmd sed -i"" "s|PREFIX_BIN|$dest_bin|g" "$dest_file"
   name=$(basename "$f")
