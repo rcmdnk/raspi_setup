@@ -44,7 +44,7 @@ class MHZ19(Tsd2Gspread):
 
 if __name__ == '__main__':
     try:
-        if sys.argv <= 1:
+        if len(sys.argv) <= 1:
             MHZ19().print_data()
         else:
             MHZ19(config_file=sys.argv[1]).write()
