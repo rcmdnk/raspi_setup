@@ -1,0 +1,9 @@
+[Unit]
+Description = MH-Z19 logging timer
+
+[Timer]
+OnCalendar = *-*-* *:*:00
+AccuracySec = 1s
+
+[Install]
+WantedBy = timers.target

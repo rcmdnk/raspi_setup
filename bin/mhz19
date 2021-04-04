@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+import sys
+import serial
+from tsd2gspread import Tsd2Gspread
+
+
+class MHZ19(Tsd2Gspread):
+    def __init__(self, **kw):
+        super().__init__(**kw)
+
+        self.dev = '/dev/serial0'
+        self.baudrate = 9600
+        self.cmd = b'\xff\x01\x86\x00\x00\x00\x00\x00\x79'
+
+    def get_data(self):
+        ser = serial.Serial(self.dev,
+                            baudrate=self.baudrate,
+                            bytesize=serial.EIGHTBITS,
+                            parity=serial.PARITY_NONE,
+                            stopbits=serial.STOPBITS_ONE,
+                            timeout=1.0)
+        ser.write(self.cmd)
+        s = ser.read(9)
+        if len(s) < 4 or s[0] != 0xff or s[1] != 0x86:
+            print('Failed to get data from MH-Z19')
+            return []
+
+        co2 = s[2] * 256 + s[3]
+        temp = s[4] - 40
+        tt = s[4]
+        ss = s[5]
+        uhul = s[6] * 256 + s[7]
+        return [co2, temp, tt, ss, uhul]
+
+    def print_data(self):
+        now, co2, temp, tt, ss, uhul = self.get_tsd()
+        print(f"datetime    : {now}")
+        print(f"co2         : {co2:.2f} ppm")
+        print(f"temperature : {temp:.2f} degree")
+        print(f"tt          : {tt}")
+        print(f"ss          : {ss}")
+        print(f"uhul        : {uhul}")
+
+
+if __name__ == '__main__':
+    try:
+        if sys.argv <= 1:
+            MHZ19().print_data()
+        else:
+            MHZ19(config_file=sys.argv[1]).write()
+    except KeyboardInterrupt:
+        pass

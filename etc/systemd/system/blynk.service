@@ -1,0 +1,11 @@
+[Unit]
+Description = Blynk service
+
+[Service]
+EnvironmentFile = /etc/conf.d/blynk.conf
+ExecStart = PREFIX_BIN/blynk --token=$BLYNK_TOKEN
+ExecStop = /bin/kill $MAINPID
+Restart = always
+
+[Install]
+WantedBy = multi-user.target
