@@ -36,7 +36,7 @@ cmd sudo apt install -y libi2c-dev i2c-tools wiringpi
 cmd sudo pip3 install smbus2
 
 # For MH-Z19B
-cmd sudo pip3 install serial
+cmd sudo pip3 install pyserial
 cmd sudo pip3 install mh-z19
 
 # For COCORO
