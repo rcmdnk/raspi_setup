@@ -3,7 +3,7 @@ Description = MH-Z19 logging
 
 [Service]
 Type = oneshot
-ExecStart = PREFIX_BIN/mhz19.py /etc/conf.d/mhz19.conf
+ExecStart = PREFIX_BIN/mhz19 /etc/conf.d/mhz19.conf
 
 [Install]
 WantedBy=multi-user.target
