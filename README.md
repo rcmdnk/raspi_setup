@@ -20,8 +20,8 @@ Ref: [rcmdnk/blynk-library: Blynk library for embedded hardware. Works with Ardu
 {% codeblock /etc/conf.d/bme280.conf lang:md %}
 SHEET_KEY=<SHEET_KEY>
 WORKSHEET_NAME=Living
-CREDENTIALS=/etc/conf.d/credentials.json
-MY_TIMEDELTA=9
+SERVICE_ACCOUNT=/etc/conf.d/credentials.json
+TIMEDELTA=9
 {% endcodeblock %}
 
 Ref: [rcmdnk/tsd2gspread: Time Series Data to Google Sheets](https://github.com/rcmdnk/tsd2gspread)
@@ -31,8 +31,8 @@ Ref: [rcmdnk/tsd2gspread: Time Series Data to Google Sheets](https://github.com/
 {% codeblock /etc/conf.d/mhz19.conf lang:md %}
 SHEET_KEY=<SHEET_KEY>
 WORKSHEET_NAME=Living
-CREDENTIALS=/etc/conf.d/credentials.json
-MY_TIMEDELTA=9
+SERVICE_ACCOUNT=/etc/conf.d/credentials.json
+TIMEDELTA=9
 {% endcodeblock %}
 
 Ref: [rcmdnk/tsd2gspread: Time Series Data to Google Sheets](https://github.com/rcmdnk/tsd2gspread)
