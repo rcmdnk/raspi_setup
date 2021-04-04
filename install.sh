@@ -52,14 +52,13 @@ cmd make clean all target=raspberry
 
 # Install executables
 cmd cd "$top_dir" || exit 1
-dest="$PREFIX/bin"
-cmd mkdir -p "$dest"
+dest_bin="$PREFIX/bin"
+cmd mkdir -p "$dest_bin"
 for f in "$top_dir"/bin/*;do
   if [ -f "$f" ];then
-    dest_file="$dest/$(basename "$f")"
+    dest_file="$dest_bin/$(basename "$f")"
     cmd ln -s $f "$dest_file"
     cmd chmod 755 "$dest_file"
-    cmd sed -i"" "s|PREFIX_BIN|$dest|g" "$dest_file"
   fi
 done
 
@@ -70,7 +69,9 @@ for f in ./etc/systemd/system/*;do
   if [ ! -f "$f" ];then
     continue
   fi
-  cmd sudo cp "$f" /etc/systemd/system/
+  dest_file=$(/etc/systemd/system/$(basename "$f")
+  cmd sudo cp "$f" "$dest_file"
+  cmd sed -i"" "s|PREFIX_BIN|$dest_bin|g" "$dest_file"
   name=$(basename "$f")
   if [ "$name" != "bme280.service" ] && [ "$name" != "mhz19.service" ];then
     services=("${services[@]}" "$name")
