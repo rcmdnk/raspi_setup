@@ -57,6 +57,7 @@ cmd mkdir -p "$dest_bin"
 for f in "$top_dir"/bin/*;do
   if [ -f "$f" ];then
     dest_file="$dest_bin/$(basename "$f")"
+    cmd rm -f "$dest_file"
     cmd ln -s $f "$dest_file"
     cmd chmod 755 "$dest_file"
   fi
