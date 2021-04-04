@@ -6,6 +6,7 @@ if [ $# -gt 0 ];then
     prefix_tmp="$(echo $1|cut -d '=' -f2)"
     if [ "$prefix_tmp" != "" ];then
       PREFIX="$prefix_tmp"
+    fi
   fi
 fi
 
