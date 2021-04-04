@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
 import sys
 import serial
+import subprocess
 from tsd2gspread import Tsd2Gspread
 
 
 class MHZ19(Tsd2Gspread):
     def __init__(self, **kw):
-        super().__init__(**kw)
-
         self.dev = '/dev/serial0'
+        self.serial = 'serial0'
         self.baudrate = 9600
         self.cmd = b'\xff\x01\x86\x00\x00\x00\x00\x00\x79'
 
+        super().__init__(**kw)
+
     def get_data(self):
+        subprocess.run(['sudo', 'systemctl', 'stop',
+                        'serial-getty@%s.service' % self.serial], check=True)
         ser = serial.Serial(self.dev,
                             baudrate=self.baudrate,
                             bytesize=serial.EIGHTBITS,
@@ -24,7 +28,8 @@ class MHZ19(Tsd2Gspread):
         if len(s) < 4 or s[0] != 0xff or s[1] != 0x86:
             print('Failed to get data from MH-Z19')
             return []
-
+        subprocess.run(['sudo', 'systemctl', 'start',
+                        'serial-getty@%s.service' % self.serial], check=True)
         co2 = s[2] * 256 + s[3]
         temp = s[4] - 40
         tt = s[4]

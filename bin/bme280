@@ -6,15 +6,17 @@ from tsd2gspread import Tsd2Gspread
 
 class BME280(Tsd2Gspread):
     def __init__(self, **kw):
-        super().__init__(**kw)
 
         self.bus_number = 1
         self.i2c_address = 0x76
+
+        super().__init__(**kw)
 
         self.bus = SMBus(self.bus_number)
         self.dig_t = []
         self.dig_p = []
         self.dig_h = []
+
         self.t_fine = 0
         self.reset_t_fine()
 
