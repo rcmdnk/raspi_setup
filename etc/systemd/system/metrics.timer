@@ -2,7 +2,7 @@
 Description = Metrics
 
 [Timer]
-OnCalendar = *-*-* *:*/10:00
+OnCalendar = *:0/10
 AccuracySec = 1s
 
 [Install]
