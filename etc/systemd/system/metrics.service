@@ -1,0 +1,9 @@
+[Unit]
+Description = Metrics
+
+[Service]
+Type = oneshot
+ExecStart = PREFIX_BIN/metrics /etc/conf.d/metrics.conf
+
+[Install]
+WantedBy=multi-user.target

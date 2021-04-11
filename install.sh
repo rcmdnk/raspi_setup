@@ -39,6 +39,9 @@ cmd sudo pip3 install smbus2
 cmd sudo pip3 install pyserial
 cmd sudo pip3 install mh-z19
 
+# For metrics
+cmd sudo pip3 install psutil
+
 # For COCORO
 cmd sudo pip3 install cocoro
 
@@ -74,7 +77,9 @@ for f in ./etc/systemd/system/*;do
   cmd sudo cp "$f" "$dest_file"
   cmd sed -i"" "s|PREFIX_BIN|$dest_bin|g" "$dest_file"
   name=$(basename "$f")
-  if [ "$name" != "bme280.service" ] && [ "$name" != "mhz19.service" ];then
+  if [ "$name" != "bme280.service" ] \
+      && [ "$name" != "mhz19.service" ] \
+      && [ "$name" != "metrics.service" ];then
     services=("${services[@]}" "$name")
   fi
 done

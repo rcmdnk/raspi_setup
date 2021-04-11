@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+import sys
+from datetime import datetime
+import psutil
+from tsd2gspread import Tsd2Gspread
+
+
+class Metrics(Tsd2Gspread):
+    def __init__(self, **kw):
+        self.n_cpus = 1
+        self.disk_path = '/'
+        super().__init__(**kw)
+
+    def get_data(self):
+        values = []
+        uptime = datetime.now() - datetime.fromtimestamp(psutil.boot_time())
+        values.append(uptime.total_seconds())
+        coretemp = psutil.sensors_temperatures()['cpu_thermal']
+        for n in range(self.n_cpus):
+            if n >= len(coretemp):
+                values.append(0)
+                continue
+            values.append(coretemp[n].current)
+        values.append(psutil.cpu_percent())
+        values += [100 * x for x in psutil.getloadavg()]
+
+        memory = psutil.virtual_memory()
+        values.append(memory.total/1024/1024)
+        values.append(memory.percent)
+        swap = psutil.swap_memory()
+        values.append(swap.total/1024/1024)
+        values.append(swap.percent)
+
+        disk = psutil.disk_usage(path=self.disk_path)
+        values.append(disk.total/1024/1024/1024)
+        values.append(disk.percent)
+
+        io = psutil.disk_io_counters(perdisk=False)
+        values.append(io.read_bytes/1024/1024)
+        values.append(io.write_bytes/1024/1024)
+
+        net = psutil.net_io_counters(pernic=False)
+        values.append(net.bytes_sent/1024/1024)
+        values.append(net.bytes_recv/1024/1024)
+
+        return [float(x) for x in values]
+
+    def print_data(self):
+        values = self.get_tsd()
+        i = 0
+        print(f"datetime    : {values[i]}")
+        i += 1
+        print(f"uptime      : {values[i]:.2f} sec")
+        i += 1
+        for i in range(i, self.n_cpus+i):
+            print(f"cpu temp    : {values[i]:.2f} degree")
+        i += 1
+        print(f"cpu percent : {values[i]:.2f} %")
+        i += 1
+        print(f"loadavg(1m) : {values[i]:.2f} %")
+        i += 1
+        print(f"loadavg(5m) : {values[i]:.2f} %")
+        i += 1
+        print(f"loadavg(15m): {values[i]:.2f} %")
+        i += 1
+        print(f"total memory: {values[i]:.2f} MiB")
+        i += 1
+        print(f"memory usage: {values[i]:.2f} %")
+        i += 1
+        print(f"total swap  : {values[i]:.2f} MiB")
+        i += 1
+        print(f"swap usage  : {values[i]:.2f} %")
+        i += 1
+        print(f"total disk  : {values[i]:.2f} GiB")
+        i += 1
+        print(f"disk usage  : {values[i]:.2f} %")
+        i += 1
+        print(f"io read     : {values[i]:.2f} MiB")
+        i += 1
+        print(f"io write    : {values[i]:.2f} MiB")
+        i += 1
+        print(f"net sent    : {values[i]:.2f} MiB")
+        i += 1
+        print(f"net receive : {values[i]:.2f} MiB")
+
+
+if __name__ == '__main__':
+    try:
+        if len(sys.argv) <= 1:
+            Metrics().print_data()
+        else:
+            Metrics(config_file=sys.argv[1]).write()
+    except KeyboardInterrupt:
+        pass
