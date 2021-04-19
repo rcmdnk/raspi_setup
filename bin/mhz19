@@ -2,6 +2,7 @@
 import sys
 import serial
 import subprocess
+import traceback
 from tsd2gspread import Tsd2Gspread
 
 
@@ -17,25 +18,31 @@ class MHZ19(Tsd2Gspread):
     def get_data(self):
         subprocess.run(['sudo', 'systemctl', 'stop',
                         'serial-getty@%s.service' % self.serial], check=True)
-        ser = serial.Serial(self.dev,
-                            baudrate=self.baudrate,
-                            bytesize=serial.EIGHTBITS,
-                            parity=serial.PARITY_NONE,
-                            stopbits=serial.STOPBITS_ONE,
-                            timeout=1.0)
-        ser.write(self.cmd)
-        s = ser.read(9)
-        if len(s) < 4 or s[0] != 0xff or s[1] != 0x86:
-            print('Failed to get data from MH-Z19')
-            return []
+
+        data = []
+        try:
+            ser = serial.Serial(self.dev,
+                                baudrate=self.baudrate,
+                                bytesize=serial.EIGHTBITS,
+                                parity=serial.PARITY_NONE,
+                                stopbits=serial.STOPBITS_ONE,
+                                timeout=1.0)
+            ser.write(self.cmd)
+            s = ser.read(9)
+            if len(s) > 7 and s[0] == 0xff and s[1] == 0x86:
+                co2 = s[2] * 256 + s[3]
+                temp = s[4] - 40
+                tt = s[4]
+                ss = s[5]
+                uhul = s[6] * 256 + s[7]
+                data = [co2, temp, tt, ss, uhul]
+        except Exception:
+            print(traceback.format_exc())
+
         subprocess.run(['sudo', 'systemctl', 'start',
                         'serial-getty@%s.service' % self.serial], check=True)
-        co2 = s[2] * 256 + s[3]
-        temp = s[4] - 40
-        tt = s[4]
-        ss = s[5]
-        uhul = s[6] * 256 + s[7]
-        return [co2, temp, tt, ss, uhul]
+
+        return data
 
     def print_data(self):
         now, co2, temp, tt, ss, uhul = self.get_tsd()
