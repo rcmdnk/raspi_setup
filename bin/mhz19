@@ -17,7 +17,7 @@ class MHZ19(Tsd2Gspread):
 
     def get_data(self):
         subprocess.run(['sudo', 'systemctl', 'stop',
-                        'serial-getty@%s.service' % self.serial], check=True)
+                        'serial-getty@%s.service' % self.serial])
 
         data = []
         try:
@@ -40,7 +40,7 @@ class MHZ19(Tsd2Gspread):
             print(traceback.format_exc())
 
         subprocess.run(['sudo', 'systemctl', 'start',
-                        'serial-getty@%s.service' % self.serial], check=True)
+                        'serial-getty@%s.service' % self.serial])
 
         return data
 
