@@ -36,13 +36,14 @@ class MHZ19(Tsd2Gspread):
                 ss = s[5]
                 uhul = s[6] * 256 + s[7]
                 data = [co2, temp, tt, ss, uhul]
+                return data
         except Exception:
             print(traceback.format_exc())
 
         subprocess.run(['sudo', 'systemctl', 'start',
                         'serial-getty@%s.service' % self.serial])
+        return []
 
-        return data
 
     def print_data(self):
         now, co2, temp, tt, ss, uhul = self.get_tsd()
