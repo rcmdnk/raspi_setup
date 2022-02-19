@@ -6,17 +6,22 @@ from tsd2gspread import Tsd2Gspread
 
 class BME280(Tsd2Gspread):
     def __init__(self, **kw):
+        super().__init__(**kw)
 
         self.bus_number = 1
         self.i2c_address = 0x76
 
-        super().__init__(**kw)
+        for offset in ['t', 'p', 'h']:
+            attr = f'offset_{offset}'
+            if not hasattr(self, attr):
+                setattr(self, attr, 0.)
+            else:
+                setattr(self, attr, float(getattr(self, attr)))
 
         self.bus = SMBus(self.bus_number)
         self.dig_t = []
         self.dig_p = []
         self.dig_h = []
-
         self.t_fine = 0
         self.reset_t_fine()
 
@@ -73,7 +78,7 @@ class BME280(Tsd2Gspread):
         v2 = (adc_t / 131072.0 - self.dig_t[0] / 8192.0)\
             * (adc_t / 131072.0 - self.dig_t[0] / 8192.0) * self.dig_t[2]
         self.t_fine = v1 + v2
-        return self.t_fine / 5120.0
+        return self.t_fine / 5120.0 + self.offset_t
 
     def compensate_p(self, adc_p):
         pressure = 0.0
@@ -98,7 +103,7 @@ class BME280(Tsd2Gspread):
         v2 = ((pressure / 4.0) * self.dig_p[7]) / 8192.0
         pressure = pressure + ((v1 + v2 + self.dig_p[6]) / 16.0)
 
-        return pressure / 100
+        return pressure / 100 + self.offset_p
 
     def compensate_h(self, adc_h):
         var_h = self.t_fine - 76800.0
@@ -116,7 +121,7 @@ class BME280(Tsd2Gspread):
             var_h = 100.0
         elif var_h < 0.0:
             var_h = 0.0
-        return var_h
+        return var_h + self.offset_h
 
     def setup(self):
         # reset default t_fine
