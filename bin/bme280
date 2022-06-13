@@ -2,7 +2,7 @@
 import sys
 from smbus2 import SMBus
 from tsd2gspread import Tsd2Gspread
-import LCD
+from rpi_lcd import LCD
 import sleep
 
 
