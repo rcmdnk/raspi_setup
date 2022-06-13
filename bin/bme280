@@ -2,15 +2,37 @@
 import sys
 from smbus2 import SMBus
 from tsd2gspread import Tsd2Gspread
+import LCD
+import sleep
+
+
+class LCDNoInitClear(LCD):
+    def __init__(self, address=0x27, bus=1, width=20, rows=4, backlight=True):
+        self.address = address
+        self.bus = SMBus(bus)
+        self.delay = 0.0005
+        self.rows = rows
+        self.width = width
+        self.backlight_status = backlight
+
+        self.write(0x33)
+        self.write(0x32)
+        self.write(0x06)
+        self.write(0x0C)
+        self.write(0x28)
+        sleep(self.delay)
 
 
 class BME280(Tsd2Gspread):
     def __init__(self, **kw):
         super().__init__(**kw)
 
-        self.bus_number = 1
-        self.i2c_address = 0x76
-
+        self.bus_number = int(getattr(self, 'bus_number', 1))
+        i2c_address = getattr(self, 'i2c_address', '0x76')
+        if i2c_address.startswith('0x'):
+            self.i2c_address = int(i2c_address, 16)
+        else:
+            self.i2c_address = int(i2c_address)
         for offset in ['t', 'p', 'h']:
             attr = f'offset_{offset}'
             if not hasattr(self, attr):
@@ -173,6 +195,12 @@ if __name__ == '__main__':
         if len(sys.argv) <= 1:
             BME280().print_data()
         else:
-            BME280(config_file=sys.argv[1]).write()
+            bme280 = BME280(config_file=sys.argv[1])
+            bme280.write()
+            now, temp, pres, hum = bme280.get_tsd(data=None, force=False)
+            lcd = LCDNoInitClear()
+            lcd.text(f"{now}", 1)
+            lcd.text(f"{temp:.2f} deg, {hum:.2f} %", 2)
+            lcd.text(f"{pres:.2f} hPa", 3)
     except KeyboardInterrupt:
         pass

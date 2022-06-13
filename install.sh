@@ -28,6 +28,9 @@ cmd sudo apt install -y git
 # Tsd2Gspread
 cmd sudo pip3 install tsd2gspread
 
+# LCD
+cmd sudo pip3 install rpi_lcd
+
 # For BME280
 # [Raspberry Piで温度湿度気圧を測ってスマホで見る](https://rcmdnk.com/blog/2019/08/26/computer-iot-raspberrypi/)
 cmd cd "$top_dir" || exit 1
