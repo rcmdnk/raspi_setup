@@ -199,8 +199,7 @@ if __name__ == '__main__':
             bme280.write()
             now, temp, pres, hum = bme280.get_tsd(data=None, force=False)
             lcd = LCDNoInitClear()
-            lcd.text(f"{now}", 1)
-            lcd.text(f"{temp:.2f} deg, {hum:.2f} %", 2)
-            lcd.text(f"{pres:.2f} hPa", 3)
+            lcd.text(f"In : {temp:4.1f}deg, {hum:4.1f}%", 3)
+            #lcd.text(f"{pres:.1f} hPa", 3)
     except KeyboardInterrupt:
         pass

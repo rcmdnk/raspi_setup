@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+
+import sys
+import requests
+from time import sleep
+from datetime import datetime
+from rpi_lcd import LCD
+from smbus2 import SMBus
+
+
+class LCDNoInitClear(LCD):
+    def __init__(self, address=0x27, bus=1, width=20, rows=4, backlight=True):
+        self.address = address
+        self.bus = SMBus(bus)
+        self.delay = 0.0005
+        self.rows = rows
+        self.width = width
+        self.backlight_status = backlight
+
+        self.write(0x33)
+        self.write(0x32)
+        self.write(0x06)
+        self.write(0x0C)
+        self.write(0x28)
+        sleep(self.delay)
+
+
+def get_code(name, name_type='enName'):
+    area = requests.get("https://www.jma.go.jp/bosai/amedas/const/amedastable.json").json()
+    for code in area:
+        if area[code][name_type] == name:
+            return code
+    else:
+        return None
+
+
+def get_data(code, datetime_str=None):
+    if not datetime_str:
+        datetime_str = datetime.now().strftime('%Y%m%d%H0000')
+    data = requests.get(f"https://www.jma.go.jp/bosai/amedas/data/map/{datetime_str}.json").json()[code]
+    return data
+
+
+if __name__ == '__main__':
+    try:
+        if len(sys.argv) <= 1:
+            area = 'Tokyo'
+        else:
+            with open(sys.argv[1]) as f:
+                for line in f.readlines():
+                    key_value = line.rstrip().split('#')[0].split('=')
+                    if len(key_value) != 2:
+                        continue
+                    if key_value[0] == 'area':
+                        area = key_value[1]
+        code = get_code(area)
+        data = get_data(code)
+        lcd = LCDNoInitClear()
+        lcd.text(f"Out: {data['temp']:4.1f}deg, {data['humidity']:4.1f}%", 2)
+    except KeyboardInterrupt:
+        pass
+    except requests.exceptions.ConnectionError as e:
+        print(e)
+        pass

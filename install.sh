@@ -81,6 +81,7 @@ for f in ./etc/systemd/system/*;do
   cmd sed -i"" "s|PREFIX_BIN|$dest_bin|g" "$dest_file"
   name=$(basename "$f")
   if [ "$name" != "bme280.service" ] \
+      && [ "$name" != "amedas.service" ] \
       && [ "$name" != "mhz19.service" ] \
       && [ "$name" != "metrics.service" ];then
     services=("${services[@]}" "$name")

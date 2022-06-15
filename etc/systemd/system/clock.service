@@ -1,0 +1,10 @@
+[Unit]
+Description = LCD clock
+
+[Service]
+ExecStart = PREFIX_BIN/clock
+ExecStop = /usr/bin/kill -p $MAINPID
+Restart = always
+
+[Install]
+WantedBy=multi-user.target
