@@ -1,29 +1,9 @@
 #!/usr/bin/env python3
 import sys
-from smbus2 import SMBus
 import serial
 import subprocess
 import traceback
 from tsd2gspread import Tsd2Gspread
-from rpi_lcd import LCD
-from time import sleep
-
-
-class LCDNoInitClear(LCD):
-    def __init__(self, address=0x27, bus=1, width=20, rows=4, backlight=True):
-        self.address = address
-        self.bus = SMBus(bus)
-        self.delay = 0.0005
-        self.rows = rows
-        self.width = width
-        self.backlight_status = backlight
-
-        self.write(0x33)
-        self.write(0x32)
-        self.write(0x06)
-        self.write(0x0C)
-        self.write(0x28)
-        sleep(self.delay)
 
 
 class MHZ19(Tsd2Gspread):
@@ -81,11 +61,7 @@ if __name__ == '__main__':
         if len(sys.argv) <= 1:
             MHZ19().print_data()
         else:
-            mhz19 = MHZ19(config_file=sys.argv[1])
-            mhz19.write()
-            now, co2, temp, tt, ss, uhul = mhz19.get_tsd(data=None, force=False)
-            lcd = LCDNoInitClear()
-            lcd.text(f"{co2:.0f} ppm", 4)
+            MHZ19(config_file=sys.argv[1]).write()
 
     except KeyboardInterrupt:
         pass

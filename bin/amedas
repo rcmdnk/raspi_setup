@@ -2,27 +2,7 @@
 
 import sys
 import requests
-from time import sleep
 from datetime import datetime, timedelta
-from rpi_lcd import LCD
-from smbus2 import SMBus
-
-
-class LCDNoInitClear(LCD):
-    def __init__(self, address=0x27, bus=1, width=20, rows=4, backlight=True):
-        self.address = address
-        self.bus = SMBus(bus)
-        self.delay = 0.0005
-        self.rows = rows
-        self.width = width
-        self.backlight_status = backlight
-
-        self.write(0x33)
-        self.write(0x32)
-        self.write(0x06)
-        self.write(0x0C)
-        self.write(0x28)
-        sleep(self.delay)
 
 
 def get_code(name, name_type='enName'):
@@ -54,6 +34,7 @@ def get_data(code, datetime_str=None):
 
 if __name__ == '__main__':
     try:
+        conf = {'area': 'Tokyo', 'log': '/opt/var/amedas'}
         if len(sys.argv) <= 1:
             area = 'Tokyo'
         else:
@@ -62,11 +43,10 @@ if __name__ == '__main__':
                     key_value = line.rstrip().split('#')[0].split('=')
                     if len(key_value) != 2:
                         continue
-                    if key_value[0] == 'area':
-                        area = key_value[1]
-        code = get_code(area)
+                    conf[key_value[0]] = key_value[1]
+        code = get_code(conf['area'])
         data = get_data(code)
-        lcd = LCDNoInitClear()
-        lcd.text(f"Out: {data['temp'][0]:4.1f}C, {data['humidity'][0]:4.1f}%", 2)
+        with open(conf['log'], 'w') as f:
+            f.write(f"Out: {data['temp'][0]:4.1f}C, {data['humidity'][0]:4.1f}%")
     except KeyboardInterrupt:
         pass

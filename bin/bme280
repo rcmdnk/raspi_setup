@@ -2,25 +2,6 @@
 import sys
 from smbus2 import SMBus
 from tsd2gspread import Tsd2Gspread
-from rpi_lcd import LCD
-from time import sleep
-
-
-class LCDNoInitClear(LCD):
-    def __init__(self, address=0x27, bus=1, width=20, rows=4, backlight=True):
-        self.address = address
-        self.bus = SMBus(bus)
-        self.delay = 0.0005
-        self.rows = rows
-        self.width = width
-        self.backlight_status = backlight
-
-        self.write(0x33)
-        self.write(0x32)
-        self.write(0x06)
-        self.write(0x0C)
-        self.write(0x28)
-        sleep(self.delay)
 
 
 class BME280(Tsd2Gspread):
@@ -195,11 +176,6 @@ if __name__ == '__main__':
         if len(sys.argv) <= 1:
             BME280().print_data()
         else:
-            bme280 = BME280(config_file=sys.argv[1])
-            bme280.write()
-            now, temp, pres, hum = bme280.get_tsd(data=None, force=False)
-            lcd = LCDNoInitClear()
-            lcd.text(f"In : {temp:4.1f}C, {hum:4.1f}%", 3)
-            #lcd.text(f"{pres:.1f} hPa", 3)
+            BME280(config_file=sys.argv[1]).write()
     except KeyboardInterrupt:
         pass
