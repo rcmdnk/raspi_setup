@@ -2,7 +2,7 @@
 Description = MH-Z19 logging timer
 
 [Timer]
-OnCalendar = *-*-* *:*:00
+OnCalendar = *-*-* *:*:40
 AccuracySec = 1s
 
 [Install]

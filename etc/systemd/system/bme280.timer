@@ -2,7 +2,7 @@
 Description = BME280 logging timer
 
 [Timer]
-OnCalendar = *-*-* *:*:00
+OnCalendar = *-*-* *:*:20
 AccuracySec = 1s
 
 [Install]

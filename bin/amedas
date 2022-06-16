@@ -56,7 +56,7 @@ if __name__ == '__main__':
         code = get_code(area)
         data = get_data(code)
         lcd = LCDNoInitClear()
-        lcd.text(f"Out: {data['temp'][0]:4.1f}deg, {data['humidity'][0]:4.1f}%", 2)
+        lcd.text(f"Out: {data['temp'][0]:4.1f}C, {data['humidity'][0]:4.1f}%", 2)
     except KeyboardInterrupt:
         pass
     except requests.exceptions.ConnectionError as e:
