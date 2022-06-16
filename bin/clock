@@ -16,15 +16,15 @@ def main():
         else:
             sleep((clock - datetime.now()).total_seconds())
         with open('/opt/var/amedas', 'r') as f:
-            data = f.readline()[0].strip().split(',')
+            data = f.readline().strip().split(',')
             amedas_temp = float(data[1])
             amedas_humi = float(data[2])
         with open('/opt/var/bme280', 'r') as f:
-            data = f.readline()[0].strip().split(',')
+            data = f.readline().strip().split(',')
             bme280_temp = float(data[1])
             bme280_humi = float(data[3])
         with open('/opt/var/mhz19', 'r') as f:
-            data = f.readline()[0].strip().split(',')
+            data = f.readline().strip().split(',')
             mhz19_co2 = float(data[1])
         lcd = LCD()
         lcd.text(clock.strftime('%Y/%m/%d %H:%M'), 1)
