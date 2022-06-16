@@ -6,23 +6,6 @@ from rpi_lcd import LCD
 from smbus2 import SMBus
 
 
-class LCDNoInitClear(LCD):
-    def __init__(self, address=0x27, bus=1, width=20, rows=4, backlight=True):
-        self.address = address
-        self.bus = SMBus(bus)
-        self.delay = 0.0005
-        self.rows = rows
-        self.width = width
-        self.backlight_status = backlight
-
-        self.write(0x33)
-        self.write(0x32)
-        self.write(0x06)
-        self.write(0x0C)
-        self.write(0x28)
-        sleep(self.delay)
-
-
 def main():
     clock = datetime.now().replace(second=0).replace(microsecond=0)
     while True:
@@ -32,8 +15,22 @@ def main():
             clock = now.replace(second=0).replace(microsecond=0)
         else:
             sleep((clock - datetime.now()).total_seconds())
-        lcd = LCDNoInitClear()
+        with open('/opt/var/amedas', 'r') as f:
+            data = f.readline()[0].strip().split(',')
+            amedas_temp = float(data[1])
+            amedas_humi = float(data[2])
+        with open('/opt/var/bme280', 'r') as f:
+            data = f.readline()[0].strip().split(',')
+            bme280_temp = float(data[1])
+            bme280_humi = float(data[3])
+        with open('/opt/var/mhz19', 'r') as f:
+            data = f.readline()[0].strip().split(',')
+            mhz19_co2 = float(data[1])
+        lcd = LCD()
         lcd.text(clock.strftime('%Y/%m/%d %H:%M'), 1)
+        lcd.text(f"Out: {amedas_temp:4.1f}C, {amedas_humi:4.1f}%", 2)
+        lcd.text(f"In : {bme280_temp:4.1f}C, {bme280_humi:4.1f}%", 3)
+        lcd.text(f"{mhz19_co2:5}ppm", 4)
 
 
 if __name__ == '__main__':

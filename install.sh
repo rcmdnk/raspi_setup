@@ -22,6 +22,8 @@ cmd () {
 top_dir=$(cd "$(dirname "$0")" && pwd)
 cmd cd "$top_dir" || exit 1
 
+mkdir -p $PREFIX/var
+
 # For common usage
 cmd sudo apt install -y git
 

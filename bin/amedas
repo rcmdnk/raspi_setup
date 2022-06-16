@@ -47,6 +47,6 @@ if __name__ == '__main__':
         code = get_code(conf['area'])
         data = get_data(code)
         with open(conf['log'], 'w') as f:
-            f.write(f"Out: {data['temp'][0]:4.1f}C, {data['humidity'][0]:4.1f}%")
+            f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')},{data['temp'][0]},{data['humidity'][0]}")
     except KeyboardInterrupt:
         pass
