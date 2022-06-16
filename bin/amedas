@@ -35,16 +35,14 @@ def get_data(code, datetime_str=None):
 if __name__ == '__main__':
     try:
         conf = {'area': 'Tokyo', 'log': '/opt/var/amedas'}
-        if len(sys.argv) <= 1:
-            area = 'Tokyo'
-        else:
+        if len(sys.argv) > 1:
             with open(sys.argv[1]) as f:
                 for line in f.readlines():
                     key_value = line.rstrip().split('#')[0].split('=')
                     if len(key_value) != 2:
                         continue
                     conf[key_value[0]] = key_value[1]
-        code = get_code(conf['area'])
+        code = conf.get('code', get_code(conf['area']))
         data = get_data(code)
         with open(conf['log'], 'w') as f:
             f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')},{data['temp'][0]},{data['humidity'][0]}")
