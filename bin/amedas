@@ -3,7 +3,7 @@
 import sys
 import requests
 from time import sleep
-from datetime import datetime
+from datetime import datetime, timedelta
 from rpi_lcd import LCD
 from smbus2 import SMBus
 
@@ -34,10 +34,21 @@ def get_code(name, name_type='enName'):
         return None
 
 
+def get_json(datetime_str, code):
+    return requests.get(f"https://www.jma.go.jp/bosai/amedas/data/map/{datetime_str}.json").json()[code]
+
+
 def get_data(code, datetime_str=None):
     if not datetime_str:
         datetime_str = datetime.now().strftime('%Y%m%d%H0000')
-    data = requests.get(f"https://www.jma.go.jp/bosai/amedas/data/map/{datetime_str}.json").json()[code]
+        try:
+            data = get_json(datetime_str, code)
+        except Exception:
+            # try to get previous data
+            datetime_str = (datetime.now() - timedelta(hours=1)).strftime('%Y%m%d%H0000')
+            data = get_json(datetime_str, code)
+    else:
+        data = get_json(datetime_str, code)
     return data
 
 
@@ -58,7 +69,4 @@ if __name__ == '__main__':
         lcd = LCDNoInitClear()
         lcd.text(f"Out: {data['temp'][0]:4.1f}C, {data['humidity'][0]:4.1f}%", 2)
     except KeyboardInterrupt:
-        pass
-    except requests.exceptions.ConnectionError as e:
-        print(e)
         pass

@@ -2,7 +2,7 @@
 Description = Amedas timer
 
 [Timer]
-OnCalendar = *-*-* *:05:10
+OnCalendar = *-*-* *:0/10:10
 AccuracySec = 1s
 
 [Install]
