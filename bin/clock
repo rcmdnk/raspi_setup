@@ -30,7 +30,7 @@ def main():
         lcd.text(clock.strftime('%Y/%m/%d %H:%M'), 1)
         lcd.text(f"Out: {amedas_temp:4.1f}C, {amedas_humi:4.1f}%", 2)
         lcd.text(f"In : {bme280_temp:4.1f}C, {bme280_humi:4.1f}%", 3)
-        lcd.text(f"     {mhz19_co2:4.0f}ppm", 4)
+        lcd.text(f"{mhz19_co2:14.0f}ppm", 4)
 
 
 if __name__ == '__main__':
