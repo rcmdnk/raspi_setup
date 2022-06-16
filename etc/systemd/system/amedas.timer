@@ -1,5 +1,5 @@
 [Unit]
-Description = BME280 logging timer
+Description = Amedas timer
 
 [Timer]
 OnCalendar = *-*-* *:05:00
