@@ -24,16 +24,16 @@ class LCDNoInitClear(LCD):
 
 
 def main():
-    lcd = LCDNoInitClear()
-    clock = datetime.now().replace(microsecond=0)
+    clock = datetime.now().replace(second=0).replace(microsecond=0)
     while True:
-        clock = clock + timedelta(seconds=1)
+        clock = clock + timedelta(minutes=1)
         now = datetime.now()
         if now > clock:
-            clock = now.replace(microsecond=0)
+            clock = now.replace(second=0).replace(microsecond=0)
         else:
             sleep((clock - datetime.now()).total_seconds())
-        lcd.text(clock.strftime('%Y/%m/%d %H:%M:%S'), 1)
+        lcd = LCDNoInitClear()
+        lcd.text(clock.strftime('%Y/%m/%d %H:%M'), 1)
 
 
 if __name__ == '__main__':
