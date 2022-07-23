@@ -24,6 +24,9 @@ cmd cd "$top_dir" || exit 1
 
 mkdir -p $PREFIX/var
 
+# Disable HDMI
+sudo /opt/vc/bin/tvservice -o
+
 # For common usage
 cmd sudo apt install -y git
 
