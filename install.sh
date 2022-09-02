@@ -88,7 +88,8 @@ for f in ./etc/systemd/system/*;do
   if [ "$name" != "bme280.service" ] \
       && [ "$name" != "amedas.service" ] \
       && [ "$name" != "mhz19.service" ] \
-      && [ "$name" != "metrics.service" ];then
+      && [ "$name" != "metrics.service" ] \
+      && [ "$name" != "check.service" ];then
     services=("${services[@]}" "$name")
   fi
 done
