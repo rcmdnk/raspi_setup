@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+conf=$1
+if [ -z "$conf" ];then
+  echo "Usage: $0 <conf>" 1>&2
+  exit 1
+fi
+while read line;do
+  line=$(echo ${line%#*})
+  key="${line%=*}"
+  var="${line#*=}"
+  if [ -z "$key" ] || [ -z "$var" ];then
+    continue
+  fi
+  eval "$key=$var"
+done < "$conf"
+
+if [ -z "$dir" ] || [ -z "$webhook_url" ] || [ -z "$min" ];then
+  echo "Give configuration files with dir, webhook_url, and min"
+  exit 2
+fi
+
+old_files=$(find "$dir" -type f -mmin +$min)
+if [ -z "${old_files}" ];then
+  exit
+fi
+curl -X POST -H "Content-type: application/json" --data "{'text':'Following files have not been updated for more than $min min: $old_files'}" $webhook_url
