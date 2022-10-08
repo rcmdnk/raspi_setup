@@ -24,4 +24,7 @@ old_files=$(find "$dir" -type f -mmin +$min)
 if [ -z "${old_files}" ];then
   exit
 fi
-curl -X POST -H "Content-type: application/json" --data "{'text':'Following files have not been updated for more than $min min: $old_files'}" $webhook_url
+old_files=($old_files)
+old_files=${old_files[@]}
+curl -X POST -H "Content-type: application/json" --data "{'text':'Following files have not been updated for more than $min min: $old_files\nreboot now!'}" $webhook_url
+sudo reboot
