@@ -7,14 +7,6 @@ Setup is optimized for Raspberry Pi Zero.
 
 Prepare following configuration files in **/etc/conf.d**:
 
-* blynk.conf:
-
-{% codeblock /etc/conf.d/blynk.conf lang:md %}
-BLYNK_TOKEN=<TOKEN>
-{% endcodeblock %}
-
-Ref: [rcmdnk/blynk-library: Blynk library for embedded hardware. Works with Arduino, ESP8266, Raspberry Pi, Intel Edison/Galileo, LinkIt ONE, Particle Core/Photon, Energia, ARM mbed, etc.](https://github.com/rcmdnk/blynk-library)
-
 * bme280.conf:
 
 {% codeblock /etc/conf.d/bme280.conf lang:md %}

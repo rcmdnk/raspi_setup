@@ -53,14 +53,6 @@ cmd sudo pip3 install psutil
 # For COCORO
 cmd sudo pip3 install cocoro
 
-# For Blynk
-# [Blynkを使ってRaspberryi Piをスマホから操作する](https://rcmdnk.com/blog/2019/08/18/computer-iot-raspberrypi/)
-cmd cd "$top_dir" || exit 1
-#cmd git clone https://github.com/blynkkk/blynk-library.git
-#cmd cd blynk-library/linux
-cd submodules/blynk-library/linux || exit 1
-cmd make clean all target=raspberry
-
 # Install executables
 cmd cd "$top_dir" || exit 1
 dest_bin="$PREFIX/bin"

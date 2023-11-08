@@ -1,3 +1,0 @@
-[submodule "submodules/blynk-library"]
-	path = submodules/blynk-library
-	url = https://github.com/rcmdnk/blynk-library.git
