@@ -2,6 +2,7 @@
 
 import sys
 import requests
+import traceback
 from datetime import datetime, timedelta
 
 
@@ -46,5 +47,10 @@ if __name__ == '__main__':
         data = get_data(code)
         with open(conf['log'], 'w') as f:
             f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')},{data['temp'][0]},{data['humidity'][0]}")
-    except KeyboardInterrupt:
-        pass
+    except Exception as e:
+        print(traceback.format_exc())
+        webhook_url = conf.get('webhook_url', '')
+        if webhook_url:
+            import requests
+            requests.post(webhook_url, json={'text': f'Error at {__file__}: {e}'})
+        sys.exit(1)

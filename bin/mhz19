@@ -57,11 +57,16 @@ class MHZ19(Tsd2Gspread):
 
 
 if __name__ == '__main__':
-    try:
-        if len(sys.argv) <= 1:
-            MHZ19().print_data()
-        else:
-            MHZ19(config_file=sys.argv[1]).write()
-
-    except KeyboardInterrupt:
-        pass
+    if len(sys.argv) <= 1:
+        MHZ19().print_data()
+    else:
+        try:
+            obj = MHZ19(config_file=sys.argv[1])
+            webhook_url = getattr(obj, 'webhook_url', None)
+            obj.write()
+        except Exception as e:
+            print(traceback.format_exc())
+            if webhook_url:
+                import requests
+                requests.post(webhook_url, json={'text': f'Error at {__file__}: {e}'})
+            sys.exit(1)
