@@ -35,15 +35,18 @@ sudo /opt/vc/bin/tvservice -o
 cmd sudo apt install -y git
 
 # For Python
-cd /tmp
-wget "https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz"
-tar zxvf Python-${PY_VER}.tgz
-cd Python-${PY_VER} || exit 1
-./configure
-make
-sudo make install
-cd ../ || exit 1
-rm -rf Python-${PY_VER} Python-${PY_VER}.tgz
+if ! type python${PY_VER%.*} >/dev/null 2>&1;then
+  cmd cd /tmp
+  cmd wget "https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz"
+  cmd tar zxvf Python-${PY_VER}.tgz
+  cmd cd Python-${PY_VER} || exit 1
+  cmd ./configure
+  cmd make
+  cmd sudo make install
+  cmd cd ../ || exit 1
+  cmd rm -rf Python-${PY_VER} Python-${PY_VER}.tgz
+  cmd cd "$top_dir" || exit 1
+fi
 
 # Tsd2Gspread
 cmd sudo pip3 install tsd2gspread
