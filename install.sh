@@ -65,9 +65,6 @@ cmd sudo pip3 install mh-z19
 # For metrics
 cmd sudo pip3 install psutil
 
-# For COCORO
-cmd sudo pip3 install cocoro
-
 # For Speedtest
 cmd sudo pip3 install speedtest-cli
 
