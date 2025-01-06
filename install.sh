@@ -31,6 +31,9 @@ mkdir -p "$PREFIX/var"
 # Disable HDMI
 sudo /opt/vc/bin/tvservice -o
 
+# Update apt
+cmd sudo apt update
+
 # For common usage
 cmd sudo apt install -y git
 
@@ -49,6 +52,7 @@ if ! type python${PY_VER%.*} >/dev/null 2>&1;then
 fi
 
 # Tsd2Gspread
+cmd sudo apt install libssl-dev
 cmd sudo pip3 install tsd2gspread
 
 # LCD
