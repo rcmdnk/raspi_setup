@@ -6,29 +6,9 @@ Setup is optimized for Raspberry Pi Zero.
 
 # Preparation
 
-Prepare following configuration files in **/etc/conf.d**:
+Prepare configuration files in **/etc/conf.d** like config.example.
 
-- bme280.conf:
-
-{% codeblock /etc/conf.d/bme280.conf lang:md %}
-SHEET_KEY=\<SHEET_KEY>
-WORKSHEET_NAME=Living
-SERVICE_ACCOUNT=/etc/conf.d/credentials.json
-TIMEDELTA=9
-{% endcodeblock %}
-
-Ref: [rcmdnk/tsd2gspread: Time Series Data to Google Sheets](https://github.com/rcmdnk/tsd2gspread)
-
-- mhz19.conf:
-
-{% codeblock /etc/conf.d/mhz19.conf lang:md %}
-SHEET_KEY=\<SHEET_KEY>
-WORKSHEET_NAME=Living
-SERVICE_ACCOUNT=/etc/conf.d/credentials.json
-TIMEDELTA=9
-{% endcodeblock %}
-
-Ref: [rcmdnk/tsd2gspread: Time Series Data to Google Sheets](https://github.com/rcmdnk/tsd2gspread)
+And prepare the following files in **/etc/conf.d**:
 
 - credentials.json:
 
