@@ -32,7 +32,7 @@ mkdir -p "$PREFIX/var"
 sudo /opt/vc/bin/tvservice -o
 
 # Update apt
-cmd sudo apt update
+cmd sudo apt update -y
 
 # For common usage
 cmd sudo apt install -y git
