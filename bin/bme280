@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import sys
-from smbus2 import SMBus
 import traceback
+
+from smbus2 import SMBus
 from tsd2gspread import Tsd2Gspread
 
 
 class BME280(Tsd2Gspread):
-    def __init__(self, **kw):
+    """BME280 class to get temperature, pressure, and humidity data from BME280 sensor via I2C bus and save it to Google Spread Sheet."""
+
+    def __init__(self, **kw) -> None:  # type: ignore[no-untyped-def]
         super().__init__(**kw)
 
         self.bus_number = int(getattr(self, 'bus_number', 1))
@@ -15,36 +20,34 @@ class BME280(Tsd2Gspread):
             self.i2c_address = int(i2c_address, 16)
         else:
             self.i2c_address = int(i2c_address)
-        for offset in ['t', 'p', 'h']:
-            attr = f'offset_{offset}'
-            if not hasattr(self, attr):
-                setattr(self, attr, 0.)
-            else:
-                setattr(self, attr, float(getattr(self, attr)))
+
+        self.offset_t = float(getattr(self, 'offset_t', 0.0))
+        self.offset_p = float(getattr(self, 'offset_p', 0.0))
+        self.offset_h = float(getattr(self, 'offset_h', 0.0))
 
         self.bus = SMBus(self.bus_number)
-        self.dig_t = []
-        self.dig_p = []
-        self.dig_h = []
-        self.t_fine = 0
+        self.dig_t: list[int] = []
+        self.dig_p: list[int] = []
+        self.dig_h: list[int] = []
+        self.t_fine: float = 0
         self.reset_t_fine()
 
-    def reset_t_fine(self):
+    def reset_t_fine(self) -> None:
         self.t_fine = 20.00 * 5120.0
 
-    def write_reg(self, reg_address, data):
+    def write_reg(self, reg_address: int, data: int) -> None:
         self.bus.write_byte_data(self.i2c_address, reg_address, data)
 
-    def get_calib_param(self):
-        calib = []
-
-        for i in range(0x88, 0x88+24):
-            calib.append(
-                self.bus.read_byte_data(self.i2c_address, i))
+    def get_calib_param(self) -> None:
+        calib = [
+            self.bus.read_byte_data(self.i2c_address, i)
+            for i in range(0x88, 0x88 + 24)
+        ]
         calib.append(self.bus.read_byte_data(self.i2c_address, 0xA1))
-        for i in range(0xE1, 0xE1+7):
-            calib.append(
-                self.bus.read_byte_data(self.i2c_address, i))
+        calib = calib + [
+            self.bus.read_byte_data(self.i2c_address, i)
+            for i in range(0xE1, 0xE1 + 7)
+        ]
 
         self.dig_t.append((calib[1] << 8) | calib[0])
         self.dig_t.append((calib[3] << 8) | calib[2])
@@ -73,26 +76,31 @@ class BME280(Tsd2Gspread):
             if self.dig_p[i] & 0x8000:
                 self.dig_p[i] = (-self.dig_p[i] ^ 0xFFFF) + 1
 
-        for i in range(0, 6):
+        for i in range(6):
             if self.dig_h[i] & 0x8000:
                 self.dig_h[i] = (-self.dig_h[i] ^ 0xFFFF) + 1
 
-    def compensate_t(self, adc_t):
+    def compensate_t(self, adc_t: int) -> float:
         v1 = (adc_t / 16384.0 - self.dig_t[0] / 1024.0) * self.dig_t[1]
-        v2 = (adc_t / 131072.0 - self.dig_t[0] / 8192.0)\
-            * (adc_t / 131072.0 - self.dig_t[0] / 8192.0) * self.dig_t[2]
+        v2 = (
+            (adc_t / 131072.0 - self.dig_t[0] / 8192.0)
+            * (adc_t / 131072.0 - self.dig_t[0] / 8192.0)
+            * self.dig_t[2]
+        )
         self.t_fine = v1 + v2
         return self.t_fine / 5120.0 + self.offset_t
 
-    def compensate_p(self, adc_p):
+    def compensate_p(self, adc_p: int) -> float:
         pressure = 0.0
 
         v1 = (self.t_fine / 2.0) - 64000.0
         v2 = (((v1 / 4.0) * (v1 / 4.0)) / 2048) * self.dig_p[5]
         v2 = v2 + ((v1 * self.dig_p[4]) * 2.0)
         v2 = (v2 / 4.0) + (self.dig_p[3] * 65536.0)
-        v1 = (((self.dig_p[2] * (((v1 / 4.0) * (v1 / 4.0)) / 8192)) / 8)
-              + ((self.dig_p[1] * v1) / 2.0)) / 262144
+        v1 = (
+            ((self.dig_p[2] * (((v1 / 4.0) * (v1 / 4.0)) / 8192)) / 8)
+            + ((self.dig_p[1] * v1) / 2.0)
+        ) / 262144
         v1 = ((32768 + v1) * self.dig_p[0]) / 32768
 
         if v1 == 0:
@@ -102,22 +110,31 @@ class BME280(Tsd2Gspread):
             pressure = (pressure * 2.0) / v1
         else:
             pressure = (pressure / v1) * 2
-        v1 = (self.dig_p[8] * (((pressure / 8.0) * (pressure / 8.0))
-                               / 8192.0)) / 4096
+        v1 = (
+            self.dig_p[8] * (((pressure / 8.0) * (pressure / 8.0)) / 8192.0)
+        ) / 4096
         v2 = ((pressure / 4.0) * self.dig_p[7]) / 8192.0
         pressure = pressure + ((v1 + v2 + self.dig_p[6]) / 16.0)
 
         return pressure / 100 + self.offset_p
 
-    def compensate_h(self, adc_h):
+    def compensate_h(self, adc_h: int) -> float:
         var_h = self.t_fine - 76800.0
         if var_h != 0:
-            var_h = (adc_h - (
-                self.dig_h[3] * 64.0 + self.dig_h[4]/16384.0 * var_h
-            )) * (
-                self.dig_h[1] / 65536.0 * (
-                    1.0 + self.dig_h[5] / 67108864.0 * var_h
-                    * (1.0 + self.dig_h[2] / 67108864.0 * var_h)))
+            var_h = (
+                adc_h
+                - (self.dig_h[3] * 64.0 + self.dig_h[4] / 16384.0 * var_h)
+            ) * (
+                self.dig_h[1]
+                / 65536.0
+                * (
+                    1.0
+                    + self.dig_h[5]
+                    / 67108864.0
+                    * var_h
+                    * (1.0 + self.dig_h[2] / 67108864.0 * var_h)
+                )
+            )
         else:
             return -1
         var_h = var_h * (1.0 - self.dig_h[0] * var_h / 524288.0)
@@ -127,17 +144,17 @@ class BME280(Tsd2Gspread):
             var_h = 0.0
         return var_h + self.offset_h
 
-    def setup(self):
+    def setup(self) -> None:
         # reset default t_fine
         self.t_fine = 20.00 * 5120.0
 
-        osrs_t = 1                      # Temperature oversampling x 1
-        osrs_p = 1                      # Pressure oversampling x 1
-        osrs_h = 1                      # Humidity oversampling x 1
-        mode = 3                        # Normal mode
-        t_sb = 5                        # Tstandby 1000ms
-        is_filter = 0                   # Filter off
-        spi3w_en = 0                    # 3-wire SPI Disable
+        osrs_t = 1  # Temperature oversampling x 1
+        osrs_p = 1  # Pressure oversampling x 1
+        osrs_h = 1  # Humidity oversampling x 1
+        mode = 3  # Normal mode
+        t_sb = 5  # Tstandby 1000ms
+        is_filter = 0  # Filter off
+        spi3w_en = 0  # 3-wire SPI Disable
 
         ctrl_meas_reg = (osrs_t << 5) | (osrs_p << 2) | mode
         config_reg = (t_sb << 5) | (is_filter << 2) | spi3w_en
@@ -147,13 +164,14 @@ class BME280(Tsd2Gspread):
         self.write_reg(0xF4, ctrl_meas_reg)
         self.write_reg(0xF5, config_reg)
 
-    def get_data(self):
+    def get_data(self) -> list[float]:
         self.setup()
         self.get_calib_param()
 
-        data = []
-        for i in range(0xF7, 0xF7+8):
-            data.append(self.bus.read_byte_data(self.i2c_address, i))
+        data = [
+            self.bus.read_byte_data(self.i2c_address, i)
+            for i in range(0xF7, 0xF7 + 8)
+        ]
         pres_raw = (data[0] << 12) | (data[1] << 4) | (data[2] >> 4)
         temp_raw = (data[3] << 12) | (data[4] << 4) | (data[5] >> 4)
         hum_raw = (data[6] << 8) | data[7]
@@ -164,12 +182,12 @@ class BME280(Tsd2Gspread):
 
         return [temp, pres, hum]
 
-    def print_data(self):
+    def print_data(self) -> None:
         now, temp, pres, hum = self.get_tsd()
-        print(f"datetime    : {now}")
-        print(f"temperature : {temp:.2f} degree")
-        print(f"pressure    : {pres:.2f} hPa")
-        print(f"humidity    : {hum:.2f} %")
+        print(f'datetime    : {now}')
+        print(f'temperature : {temp:.2f} degree')
+        print(f'pressure    : {pres:.2f} hPa')
+        print(f'humidity    : {hum:.2f} %')
 
 
 if __name__ == '__main__':
@@ -184,5 +202,10 @@ if __name__ == '__main__':
             print(traceback.format_exc())
             if webhook_url:
                 import requests
-                requests.post(webhook_url, json={'text': f'Error at {__file__}: {e}'})
+
+                requests.post(
+                    webhook_url,
+                    json={'text': f'Error at {__file__}: {e}'},
+                    timeout=60,
+                )
             sys.exit(1)

@@ -1,0 +1,95 @@
+[project]
+name = "raspi_setup"
+version = "0.1.0"
+description = "Setup script for Raspberry pi, including scripts, configurations, etc..."
+authors = [
+    { name = "rcmdnk", email = "rcmdnk@gmail.com" }
+]
+requires-python = ">=3.9.0"
+dependencies = [
+    "cocoro>=0.1.5",
+    "mh-z19>=3.1.6",
+    "psutil>=6.1.1",
+    "pyserial>=3.5",
+    "rpi-lcd>=0.0.3",
+    "smbus2>=0.5.0",
+    "speedtest-cli>=2.1.3",
+    "tsd2gspread>=0.3.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest >= 8.3.0",
+    "pytest-cov >= 6.0.0",
+    "pytest-xdist >= 3.3.1",
+    "pyproject-pre-commit[ruff] >= 0.3.6",
+    "types-requests>=2.32.0.20241016",
+    "types-cachetools>=5.5.0.20240820",
+    "types-pyopenssl>=24.1.0.20240722",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+addopts = "-n auto"
+testpaths = ["tests",]
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "E501", # Line too long. Disable it to allow long lines of comments and print lines which black allows.
+    "D100", "D102", "D103", "D104", "D105", "D106", "D107", # Missing docstrings other than class (D101)
+    "D203", # `one-blank-line-before-class` (D203) and `no-blank-line-before-class` (D211) are incompatible. Ignoring `one-blank-line-before-class`.
+    "D212", # `multi-line-summary-first-line` (D212) and `multi-line-summary-second-line` (D213) are incompatible. Ignoring `multi-line-summary-second-line`.
+    "C901", # Complex function
+    "S603", # `subprocess` call: check for execution of untrusted input
+    "S607", # Starting a process with a partial executable path
+    "COM812", "ISC001", # The following rules may cause conflicts when used with the formatter: `COM812`, `ISC001`. To avoid unexpected behavior, we recommend disabling these rules, either by removing them from the `select` or `extend-select` configuration, or adding them to the `ignore` configuration.
+    "ERA001", # Remove commented-out code
+    "G004", # Logging statement uses f-string
+    "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR2004",
+    "T201", # `print` found
+    "BLE001", # Do not catch blind exception: `Exception`
+    "ANN003", # Missing type annotation for `**kw`
+    "DTZ005", # `datetime.datetime.now()` called without a `tz` argument
+    "DTZ006", # `datetime.datetime.fromtimestamp()` called without a `tz` argument
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S603", "S607", "C901", "FBT001", "FBT003", "ARG001", "ARG005"]
+"docs/**" = ["ALL"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.format]
+quote-style = "single"
+docstring-code-format = true
+
+[tool.mypy]
+files = ["bin/amedas", "bin/bme280", "bin/clock", "bin/metrics", "bin/mhz19", "bin/speedtest"]
+strict = true
+warn_return_any = false
+ignore_missing_imports = true
+scripts_are_modules = true
+install_types = true
+non_interactive = true
+
+[tool.numpydoc_validation]
+checks = [
+    "all",   # report on all checks, except the below
+    "EX01",  # "No examples section found"
+    "ES01",  # "No extended summary found"
+    "SA01",  # "See Also section not found"
+    "GL08",  # "The object does not have a docstring"
+    "PR01",  # "Parameters {missing_params} not documented"
+    "RT01",  # "No Returns section found"
+]

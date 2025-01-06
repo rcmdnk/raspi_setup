@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
+import contextlib
 from datetime import datetime, timedelta
+from pathlib import Path
 from time import sleep
+
 from rpi_lcd import LCD
-from smbus2 import SMBus
 
 
-def main():
+def main() -> None:
     clock = datetime.now().replace(second=0).replace(microsecond=0)
     while True:
         clock = clock + timedelta(minutes=1)
@@ -15,26 +18,24 @@ def main():
             clock = now.replace(second=0).replace(microsecond=0)
         else:
             sleep((clock - datetime.now()).total_seconds())
-        with open('/opt/var/amedas', 'r') as f:
+        with Path('/opt/var/amedas').open() as f:
             data = f.readline().strip().split(',')
             amedas_temp = float(data[1])
             amedas_humi = float(data[2])
-        with open('/opt/var/bme280', 'r') as f:
+        with Path('/opt/var/bme280').open() as f:
             data = f.readline().strip().split(',')
             bme280_temp = float(data[1])
             bme280_humi = float(data[3])
-        with open('/opt/var/mhz19', 'r') as f:
+        with Path('/opt/var/mhz19').open() as f:
             data = f.readline().strip().split(',')
             mhz19_co2 = float(data[1])
         lcd = LCD()
         lcd.text(clock.strftime('%Y/%m/%d %H:%M'), 1)
-        lcd.text(f"Out: {amedas_temp:4.1f}C, {amedas_humi:4.1f}%", 2)
-        lcd.text(f"In : {bme280_temp:4.1f}C, {bme280_humi:4.1f}%", 3)
-        lcd.text(f"{mhz19_co2:14.0f}ppm", 4)
+        lcd.text(f'Out: {amedas_temp:4.1f}C, {amedas_humi:4.1f}%', 2)
+        lcd.text(f'In : {bme280_temp:4.1f}C, {bme280_humi:4.1f}%', 3)
+        lcd.text(f'{mhz19_co2:14.0f}ppm', 4)
 
 
 if __name__ == '__main__':
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         main()
-    except KeyboardInterrupt:
-        pass

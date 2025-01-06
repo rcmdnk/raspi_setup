@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
-import sys
-import serial
+from __future__ import annotations
+
 import subprocess
+import sys
 import traceback
+
+import serial
 from tsd2gspread import Tsd2Gspread
 
 
 class MHZ19(Tsd2Gspread):
-    def __init__(self, **kw):
+    """MH-Z19 CO2 sensor class to get CO2 and temperature data and send it to Google Spread Sheet."""
+
+    def __init__(self, **kw) -> None:  # type: ignore[no-untyped-def]
         self.dev = '/dev/serial0'
         self.serial = 'serial0'
         self.baudrate = 9600
@@ -16,44 +21,57 @@ class MHZ19(Tsd2Gspread):
         super().__init__(**kw)
         self.baudrate = int(self.baudrate)
 
-    def get_data(self):
-        subprocess.run(['sudo', 'systemctl', 'stop',
-                        'serial-getty@%s.service' % self.serial])
+    def get_data(self) -> list[float]:
+        subprocess.run(
+            [
+                'sudo',
+                'systemctl',
+                'stop',
+                f'serial-getty@{self.serial}.service',
+            ],
+            check=False,
+        )
 
-        data = []
         try:
-            ser = serial.Serial(self.dev,
-                                baudrate=self.baudrate,
-                                bytesize=serial.EIGHTBITS,
-                                parity=serial.PARITY_NONE,
-                                stopbits=serial.STOPBITS_ONE,
-                                timeout=1.0)
+            ser = serial.Serial(
+                self.dev,
+                baudrate=self.baudrate,
+                bytesize=serial.EIGHTBITS,
+                parity=serial.PARITY_NONE,
+                stopbits=serial.STOPBITS_ONE,
+                timeout=1.0,
+            )
             ser.write(self.cmd)
             s = ser.read(9)
-            if len(s) > 7 and s[0] == 0xff and s[1] == 0x86:
+            if len(s) > 7 and s[0] == 0xFF and s[1] == 0x86:
                 co2 = s[2] * 256 + s[3]
                 temp = s[4] - 40
                 tt = s[4]
                 ss = s[5]
                 uhul = s[6] * 256 + s[7]
-                data = [co2, temp, tt, ss, uhul]
-                return data
+                return [co2, temp, tt, ss, uhul]
         except Exception:
             print(traceback.format_exc())
 
-        subprocess.run(['sudo', 'systemctl', 'start',
-                        'serial-getty@%s.service' % self.serial])
+        subprocess.run(
+            [
+                'sudo',
+                'systemctl',
+                'start',
+                f'serial-getty@{self.serial}.service',
+            ],
+            check=False,
+        )
         return []
 
-
-    def print_data(self):
+    def print_data(self) -> None:
         now, co2, temp, tt, ss, uhul = self.get_tsd()
-        print(f"datetime    : {now}")
-        print(f"co2         : {co2:.2f} ppm")
-        print(f"temperature : {temp:.2f} degree")
-        print(f"tt          : {tt}")
-        print(f"ss          : {ss}")
-        print(f"uhul        : {uhul}")
+        print(f'datetime    : {now}')
+        print(f'co2         : {co2:.2f} ppm')
+        print(f'temperature : {temp:.2f} degree')
+        print(f'tt          : {tt}')
+        print(f'ss          : {ss}')
+        print(f'uhul        : {uhul}')
 
 
 if __name__ == '__main__':
@@ -68,5 +86,10 @@ if __name__ == '__main__':
             print(traceback.format_exc())
             if webhook_url:
                 import requests
-                requests.post(webhook_url, json={'text': f'Error at {__file__}: {e}'})
+
+                requests.post(
+                    webhook_url,
+                    json={'text': f'Error at {__file__}: {e}'},
+                    timeout=60,
+                )
             sys.exit(1)

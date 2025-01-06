@@ -5,8 +5,10 @@ if [ -z "$conf" ];then
   echo "Usage: $0 <conf>" 1>&2
   exit 1
 fi
-while read line;do
-  line=$(echo ${line%#*})
+while read -r line;do
+  # remove comemnts and leading/trailing spaces
+  # shellcheck disable=SC2116
+  line=$(echo "${line%#*}")
   key="${line%=*}"
   var="${line#*=}"
   if [ -z "$key" ] || [ -z "$var" ];then
@@ -20,11 +22,9 @@ if [ -z "$dir" ] || [ -z "$webhook_url" ] || [ -z "$min" ];then
   exit 2
 fi
 
-old_files=$(find "$dir" -type f -mmin +$min)
+old_files=$(find "$dir" -type f -mmin +"$min")
 if [ -z "${old_files}" ];then
   exit
 fi
-old_files=($old_files)
-old_files=${old_files[@]}
-curl -X POST -H "Content-type: application/json" --data "{'text':'Following files have not been updated for more than $min min: $old_files\nreboot now!'}" $webhook_url
+curl -X POST -H "Content-type: application/json" --data "{'text':'Following files have not been updated for more than $min min: $old_files\nreboot now!'}" "$webhook_url"
 sudo reboot

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+
 SWAP_SIZE=2408
 LOG_SIZE=1G
 TIME_ZONE="Asia/Tokyo"

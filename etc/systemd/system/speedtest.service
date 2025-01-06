@@ -1,0 +1,9 @@
+[Unit]
+Description = Speedtest
+
+[Service]
+Type = oneshot
+ExecStart = PREFIX_BIN/speedtest /etc/conf.d/speedtest.conf
+
+[Install]
+WantedBy=multi-user.target

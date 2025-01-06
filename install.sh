@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
+set -e
+
 PREFIX=/opt
 ENABLE_SERVICE=1
+PY_VER=3.13.1
+
 if [ $# -gt 0 ];then
-  if [ "$(echo $1|cut -d '=' -f1)" = "--prefix" ];then
-    prefix_tmp="$(echo $1|cut -d '=' -f2)"
+  if [ "$(echo "$1"|cut -d '=' -f1)" = "--prefix" ];then
+    prefix_tmp="$(echo "$1"|cut -d '=' -f2)"
     if [ "$prefix_tmp" != "" ];then
       PREFIX="$prefix_tmp"
     fi
@@ -22,13 +26,24 @@ cmd () {
 top_dir=$(cd "$(dirname "$0")" && pwd)
 cmd cd "$top_dir" || exit 1
 
-mkdir -p $PREFIX/var
+mkdir -p "$PREFIX/var"
 
 # Disable HDMI
 sudo /opt/vc/bin/tvservice -o
 
 # For common usage
 cmd sudo apt install -y git
+
+# For Python
+cd /tmp
+wget "https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz"
+tar zxvf Python-${PY_VER}.tgz
+cd Python-${PY_VER} || exit 1
+./configure
+make
+sudo make install
+cd ../ || exit 1
+rm -rf Python-${PY_VER} Python-${PY_VER}.tgz
 
 # Tsd2Gspread
 cmd sudo pip3 install tsd2gspread
@@ -38,8 +53,8 @@ cmd sudo pip3 install rpi_lcd
 
 # For BME280
 # [Raspberry Piで温度湿度気圧を測ってスマホで見る](https://rcmdnk.com/blog/2019/08/26/computer-iot-raspberrypi/)
-cmd cd "$top_dir" || exit 1
 cmd sudo apt install -y libi2c-dev i2c-tools wiringpi
+#cmd cd "$top_dir" || exit 1
 #cmd git clone https://github.com/andreiva/raspberry-pi-bme280.git
 cmd sudo pip3 install smbus2
 
@@ -53,6 +68,9 @@ cmd sudo pip3 install psutil
 # For COCORO
 cmd sudo pip3 install cocoro
 
+# For Speedtest
+cmd sudo pip3 install speedtest-cli
+
 # Install executables
 cmd cd "$top_dir" || exit 1
 dest_bin="$PREFIX/bin"
@@ -61,7 +79,7 @@ for f in "$top_dir"/bin/*;do
   if [ -f "$f" ];then
     dest_file="$dest_bin/$(basename "$f")"
     cmd rm -f "$dest_file"
-    cmd ln -s $f "$dest_file"
+    cmd ln -s "$f" "$dest_file"
     cmd chmod 755 "$dest_file"
   fi
 done
