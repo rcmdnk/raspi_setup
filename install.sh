@@ -35,8 +35,8 @@ cmd sudo apt upgrade -y
 # For common usage
 cmd sudo apt install -y screen
 
-# For Python
-if ! type python${PY_VER%.*} >/dev/null 2>&1;then
+# For Python, need at least 3.9
+if ! type python3 >/dev/null || (($(python3 --version |cut -d'.' -f2) < 9)) 2>&1;then
   cmd cd /tmp
   cmd wget "https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz"
   cmd tar zxvf Python-${PY_VER}.tgz
