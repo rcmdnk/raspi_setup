@@ -47,6 +47,8 @@ if ! type python3 >/dev/null || (($(python3 --version |cut -d'.' -f2) < 9)) 2>&1
   cmd cd ../ || exit 1
   cmd rm -rf Python-${PY_VER} Python-${PY_VER}.tgz
   cmd cd "$top_dir" || exit 1
+elif ! type pip3 >/dev/null;then
+  cmd sudo apt install -y pip
 fi
 
 # Tsd2Gspread
