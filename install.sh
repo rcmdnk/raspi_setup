@@ -28,14 +28,12 @@ cmd cd "$top_dir" || exit 1
 
 mkdir -p "$PREFIX/var"
 
-# Disable HDMI
-sudo /opt/vc/bin/tvservice -o
-
 # Update apt
 cmd sudo apt update -y
+cmd sudo apt upgrade -y
 
 # For common usage
-cmd sudo apt install -y git
+cmd sudo apt install -y screen
 
 # For Python
 if ! type python${PY_VER%.*} >/dev/null 2>&1;then

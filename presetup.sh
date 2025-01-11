@@ -50,12 +50,15 @@ sudo sh -c "echo 'core_freq=250' >> /boot/config.txt"
 cmd sudo sed -i -e "s/^.*SystemMaxUse=.*/SystemMaxUse=${LOG_SIZE}/g" /etc/systemd/journald.conf
 
 # Disable X-server
-#cmd sudo update-rc.d lightdm disable
+cmd sudo update-rc.d lightdm disable
 
 # Disable GUI
 #cmd sudo systemctl set-default multi-user.target
 # Enable GUI
-#cmd sudo systemctl set-default graphical.target
+cmd sudo systemctl set-default graphical.target
+
+# Disable HDMI
+sudo /opt/vc/bin/tvservice -o
 
 # Set Host name
 cmd sudo sed -i "s/raspberrypi/${NEW_HOSTNAME}/g" /etc/hosts

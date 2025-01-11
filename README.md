@@ -14,6 +14,13 @@ And prepare the following files in **/etc/conf.d**:
 
 Ref: [Authentication — gspread 3.7.0 documentation](https://gspread.readthedocs.io/en/latest/oauth2.html#for-bots-using-service-account)
 
+Install Git and clone this repository:
+
+```
+sudo apt install -y git
+git clone https://github.com:rcmdnk/raspi_setup.git
+```
+
 # Usage
 
 1. Run presetup.sh
