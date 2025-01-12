@@ -87,7 +87,7 @@ for f in ./etc/systemd/system/*;do
   fi
   dest_file=/etc/systemd/system/$(basename "$f")
   cmd sudo cp "$f" "$dest_file"
-  cmd sed -i"" "s|PREFIX_BIN|$dest_bin|g" "$dest_file"
+  cmd sudo sed -i"" "s|PREFIX_BIN|$dest_bin|g" "$dest_file"
   name=$(basename "$f")
   if [ "$name" != "bme280.service" ] \
       && [ "$name" != "amedas.service" ] \
