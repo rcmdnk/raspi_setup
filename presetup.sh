@@ -30,21 +30,21 @@ cmd sudo apt -y dist-upgrade
 cmd sudo sed -i -e "s/^CONF_SWAPSIZE=.*/CONF_SWAPSIZE=${SWAP_SIZE}/g" /etc/dphys-swapfile
 
 # Enable I2C
-cmd sudo sed -i"" "s/^.*dtparam=i2c_arm=.*$/dtparam=i2c_arm=on/" /boot/config.txt
+cmd sudo sed -i"" "s/^.*dtparam=i2c_arm=.*$/dtparam=i2c_arm=on/" /boot/firmware/config.txt
 if ! grep -q "^i2c-dev$" /etc/modules;then
   echo "$ sudo sh -c \"echo i2c-dev >> /etc/modules\""
   sudo sh -c "echo i2c-dev >> /etc/modules"
 fi
 
 # Enable UART
-sudo sh -c "echo '' >> /boot/config.txt"
-sudo sh -c "echo '# Enable UART' >> /boot/config.txt"
-#echo "$ sudo sh -c \"echo 'enable_uart=1' >> /boot/config.txt\""
-#sudo sh -c "echo 'enable_uart=1' >> /boot/config.txt"
-echo "$ sudo sh -c \"echo 'dtoverlay=pi3-miniuart-bt' >> /boot/config.txt\""
-sudo sh -c "echo 'dtoverlay=pi3-miniuart-bt' >> /boot/config.txt"
-echo "$ sudo sh -c \"echo 'core_freq=250' >> /boot/config.txt\""
-sudo sh -c "echo 'core_freq=250' >> /boot/config.txt"
+sudo sh -c "echo '' >> /boot/firmware/config.txt"
+sudo sh -c "echo '# Enable UART' >> /boot/firmware/config.txt"
+#echo "$ sudo sh -c \"echo 'enable_uart=1' >> /boot/firmware/config.txt\""
+#sudo sh -c "echo 'enable_uart=1' >> /boot/firmware/config.txt"
+echo "$ sudo sh -c \"echo 'dtoverlay=pi3-miniuart-bt' >> /boot/firmware/config.txt\""
+sudo sh -c "echo 'dtoverlay=pi3-miniuart-bt' >> /boot/firmware/config.txt"
+echo "$ sudo sh -c \"echo 'core_freq=250' >> /boot/firmware/config.txt\""
+sudo sh -c "echo 'core_freq=250' >> /boot/firmware/config.txt"
 
 # journald log size
 cmd sudo sed -i -e "s/^.*SystemMaxUse=.*/SystemMaxUse=${LOG_SIZE}/g" /etc/systemd/journald.conf
