@@ -37,14 +37,16 @@ if ! grep -q "^i2c-dev$" /etc/modules;then
 fi
 
 # Enable UART
-sudo sh -c "echo '' >> /boot/firmware/config.txt"
-sudo sh -c "echo '# Enable UART' >> /boot/firmware/config.txt"
-#echo "$ sudo sh -c \"echo 'enable_uart=1' >> /boot/firmware/config.txt\""
-#sudo sh -c "echo 'enable_uart=1' >> /boot/firmware/config.txt"
-echo "$ sudo sh -c \"echo 'dtoverlay=pi3-miniuart-bt' >> /boot/firmware/config.txt\""
-sudo sh -c "echo 'dtoverlay=pi3-miniuart-bt' >> /boot/firmware/config.txt"
-echo "$ sudo sh -c \"echo 'core_freq=250' >> /boot/firmware/config.txt\""
-sudo sh -c "echo 'core_freq=250' >> /boot/firmware/config.txt"
+if ! grep -q "dtoverlay=pi3-miniuart-bt" /boot/firmware/config.txt;then
+  sudo sh -c "echo '' >> /boot/firmware/config.txt"
+  sudo sh -c "echo '# Enable UART' >> /boot/firmware/config.txt"
+  #echo "$ sudo sh -c \"echo 'enable_uart=1' >> /boot/firmware/config.txt\""
+  #sudo sh -c "echo 'enable_uart=1' >> /boot/firmware/config.txt"
+  echo "$ sudo sh -c \"echo 'dtoverlay=pi3-miniuart-bt' >> /boot/firmware/config.txt\""
+  sudo sh -c "echo 'dtoverlay=pi3-miniuart-bt' >> /boot/firmware/config.txt"
+  echo "$ sudo sh -c \"echo 'core_freq=250' >> /boot/firmware/config.txt\""
+  sudo sh -c "echo 'core_freq=250' >> /boot/firmware/config.txt"
+fi
 
 # journald log size
 cmd sudo sed -i -e "s/^.*SystemMaxUse=.*/SystemMaxUse=${LOG_SIZE}/g" /etc/systemd/journald.conf
