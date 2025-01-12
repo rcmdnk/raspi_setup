@@ -52,7 +52,9 @@ fi
 cmd sudo sed -i -e "s/^.*SystemMaxUse=.*/SystemMaxUse=${LOG_SIZE}/g" /etc/systemd/journald.conf
 
 # Disable X-server
-cmd sudo update-rc.d lightdm disable
+if ls /etc/init.d/lightdm >&/dev/null 2>&1;then
+  cmd sudo systemctl disable lightdm
+fi
 
 # Disable GUI
 #cmd sudo systemctl set-default multi-user.target
