@@ -62,7 +62,9 @@ cmd sudo systemctl set-default multi-user.target
 #cmd sudo systemctl set-default graphical.target
 
 # Disable HDMI
-sudo /opt/vc/bin/tvservice -o
+if [ -f /opt/vc/bin/tvservice ];then
+  cmd sudo /opt/vc/bin/tvservice -o
+fi
 
 # Set Host name
 cmd sudo sed -i "s/raspberrypi/${NEW_HOSTNAME}/g" /etc/hosts
