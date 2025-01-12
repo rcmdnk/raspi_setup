@@ -57,9 +57,9 @@ if ls /etc/init.d/lightdm >&/dev/null 2>&1;then
 fi
 
 # Disable GUI
-#cmd sudo systemctl set-default multi-user.target
+cmd sudo systemctl set-default multi-user.target
 # Enable GUI
-cmd sudo systemctl set-default graphical.target
+#cmd sudo systemctl set-default graphical.target
 
 # Disable HDMI
 sudo /opt/vc/bin/tvservice -o
