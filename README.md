@@ -18,7 +18,10 @@ Install Git and clone this repository:
 
 ```
 sudo apt install -y git
+sudo chmod 777 /opt
+cd /opt
 git clone https://github.com/rcmdnk/raspi_setup.git
+
 ```
 
 # Usage

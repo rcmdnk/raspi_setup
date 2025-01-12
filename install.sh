@@ -3,7 +3,6 @@ set -e
 
 PREFIX=/opt
 ENABLE_SERVICE=1
-PY_VER=3.13.1
 
 if [ $# -gt 0 ];then
   if [ "$(echo "$1"|cut -d '=' -f1)" = "--prefix" ];then
@@ -32,48 +31,39 @@ mkdir -p "$PREFIX/var"
 cmd sudo apt update -y
 cmd sudo apt upgrade -y
 
-# For common usage
-cmd sudo apt install -y screen
+# Install packages
+cmd sudo apt install -y python3-pip python3-lgpio libssl-dev libi2c-dev i2c-tools swig screen python3-lgpio # wiringpi
 
-# For Python, need at least 3.9
-if ! type python3 >/dev/null || (($(python3 --version |cut -d'.' -f2) < 9)) 2>&1;then
-  cmd cd /tmp
-  cmd wget "https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz"
-  cmd tar zxvf Python-${PY_VER}.tgz
-  cmd cd Python-${PY_VER} || exit 1
-  cmd ./configure
-  cmd make
-  cmd sudo make install
-  cmd cd ../ || exit 1
-  cmd rm -rf Python-${PY_VER} Python-${PY_VER}.tgz
-  cmd cd "$top_dir" || exit 1
-elif ! type pip3 >/dev/null;then
-  cmd sudo apt install -y pip
-fi
+# Make python venv
+python3 -m venv --system-site-packages "$PREFIX/venv"
 
-# Tsd2Gspread
-cmd sudo apt install libssl-dev -y
-cmd sudo pip3 install tsd2gspread
+# Install python packages
+"$PREFIX/venv/bin/pip" install --upgrade pip
+"$PREFIX/venv/bin/pip" install tsd2gspread rpi_lcd smbus2 pyserial mh-z19 psutil speedtest-cli
 
-# LCD
-cmd sudo pip3 install rpi_lcd
-
-# For BME280
-# [Raspberry Piで温度湿度気圧を測ってスマホで見る](https://rcmdnk.com/blog/2019/08/26/computer-iot-raspberrypi/)
-cmd sudo apt install -y libi2c-dev i2c-tools wiringpi
-#cmd cd "$top_dir" || exit 1
-#cmd git clone https://github.com/andreiva/raspberry-pi-bme280.git
-cmd sudo pip3 install smbus2
-
-# For MH-Z19B
-cmd sudo pip3 install pyserial
-cmd sudo pip3 install mh-z19
-
-# For metrics
-cmd sudo pip3 install psutil
-
-# For Speedtest
-cmd sudo pip3 install speedtest-cli
+## Tsd2Gspread
+#cmd sudo apt install libssl-dev -y
+#cmd sudo pip3 install tsd2gspread
+#
+## LCD
+#cmd sudo pip3 install rpi_lcd
+#
+## For BME280
+## [Raspberry Piで温度湿度気圧を測ってスマホで見る](https://rcmdnk.com/blog/2019/08/26/computer-iot-raspberrypi/)
+#cmd sudo apt install -y libi2c-dev i2c-tools wiringpi
+##cmd cd "$top_dir" || exit 1
+##cmd git clone https://github.com/andreiva/raspberry-pi-bme280.git
+#cmd sudo pip3 install smbus2
+#
+## For MH-Z19B
+#cmd sudo pip3 install pyserial
+#cmd sudo pip3 install mh-z19
+#
+## For metrics
+#cmd sudo pip3 install psutil
+#
+## For Speedtest
+#cmd sudo pip3 install speedtest-cli
 
 # Install executables
 cmd cd "$top_dir" || exit 1
