@@ -1,11 +1,12 @@
 #!/opt/venv/bin/python
 from __future__ import annotations
 
+import json
+import subprocess
 import sys
 import traceback
 from typing import Any
 
-import speedtest
 from tsd2gspread import Tsd2Gspread
 
 
@@ -16,50 +17,93 @@ class SpeedTest(Tsd2Gspread):
         super().__init__(**kw)
 
     def get_data(self) -> list[Any]:
-        st = speedtest.Speedtest()  # type: ignore[attr-defined] # (wrong mypy error)
-        best_server = st.get_best_server()
-        server_name = best_server['sponsor']
-        server_country = best_server['country']
-        server_distance = best_server['d']  # km
-        download_speed = st.download() / 1_000_000  # Mbps
-        upload_speed = st.upload() / 1_000_000  # Mbps
-        ping = best_server['latency']  # ms
+        cmd = ['speedtest', '-f', 'json', '-p', 'no', '--accept-license']
+        if server := getattr(self, 'server_id', None):
+            cmd.extend(['-s', str(server)])
+        result = subprocess.run(
+            ['speedtest'], capture_output=True, text=True, check=False
+        )
+        if result.returncode != 0:
+            raise RuntimeError(result.stderr)
+        data = json.loads(result.stdout)
+        server_id = data['server']['id']
+        server_name = data['server']['name']
+        server_ip = data['server']['ip']
+        isp = data['isp']
+        interface_internal_ip = data['interface']['internalIp']
+        interface_mac_addr = data['interface']['macAddr']
+        interface_external_ip = data['interface']['externalIp']
+        ping = data['ping']['latency']
+        download = data['download']['bandwidth'] / 125_000  # Mbps
+        upload = data['upload']['bandwidth'] / 125_000  # Mbps
+        packet_loss = data['packetLoss']
 
         return [
+            server_id,
             server_name,
-            server_country,
-            server_distance,
-            download_speed,
-            upload_speed,
+            server_ip,
+            isp,
+            interface_internal_ip,
+            interface_mac_addr,
+            interface_external_ip,
             ping,
+            download,
+            upload,
+            packet_loss,
         ]
 
     def print_data(self) -> None:
-        now, name, country, distance, download, upload, ping = self.get_tsd()
+        (
+            now,
+            server_id,
+            server_name,
+            server_ip,
+            isp,
+            interface_internal_ip,
+            interface_mac_addr,
+            interface_external_ip,
+            ping,
+            download,
+            upload,
+            packet_loss,
+        ) = self.get_data()
         print(f'Datetime    : {now}')
-        print(f'Server      : {name} ({country})')
-        print(f'Distance    : {distance:.2f} km')
+        print(f'Server ID   : {server_id}')
+        print(f'Server Name : {server_name}')
+        print(f'Server IP   : {server_ip}')
+        print(f'ISP         : {isp}')
+        print(f'Internal IP : {interface_internal_ip}')
+        print(f'MAC Address : {interface_mac_addr}')
+        print(f'External IP : {interface_external_ip}')
+        print(f'Ping        : {ping} ms')
         print(f'Download    : {download:.2f} Mbps')
         print(f'Upload      : {upload:.2f} Mbps')
-        print(f'Ping        : {ping:.2f} ms')
+        print(f'Packet Loss : {packet_loss}')
 
 
 if __name__ == '__main__':
-    if len(sys.argv) <= 1:
-        SpeedTest().print_data()
-    else:
-        try:
-            obj = SpeedTest(config_file=sys.argv[1])
-            obj.write()
-        except Exception as e:
-            print(traceback.format_exc())
-            webhook_url = getattr(obj, 'webhook_url', None)
-            if webhook_url:
-                import requests
+    config_file = None
+    if len(sys.argv) > 1:
+        config_file = sys.argv[1]
+    obj = SpeedTest(config_file=config_file)
+    if (
+        obj.sheet_name is None
+        and obj.sheet_url is None
+        and obj.sheet_key is None
+    ):
+        obj.print_data()
+        sys.exit(0)
+    try:
+        obj.write()
+    except Exception as e:
+        print(traceback.format_exc())
+        webhook_url = getattr(obj, 'webhook_url', None)
+        if webhook_url:
+            import requests
 
-                requests.post(
-                    webhook_url,
-                    json={'text': f'Error at {__file__}: {e}'},
-                    timeout=60,
-                )
-            sys.exit(1)
+            requests.post(
+                webhook_url,
+                json={'text': f'Error at {__file__}: {e}'},
+                timeout=60,
+            )
+        sys.exit(1)

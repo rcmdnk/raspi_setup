@@ -34,6 +34,13 @@ cmd sudo apt upgrade -y
 # Install packages
 cmd sudo apt install -y python3-pip python3-lgpio libssl-dev libi2c-dev i2c-tools swig screen python3-lgpio # wiringpi
 
+# Install speedtest
+cmd cd /tmp || exit 1
+cmd wget -O speedtest.tgz https://install.speedtest.net/app/cli/ookla-speedtest-1.2.0-linux-armel.tgz
+cmd tar xvf speedtest.tgz
+cmd sudo mv speedtest /usr/local/bin/speedtest
+cmd sudo rm -rf speedtest*
+
 # Make python venv
 python3 -m venv --system-site-packages "$PREFIX/venv"
 

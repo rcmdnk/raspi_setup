@@ -91,21 +91,28 @@ class Metrics(Tsd2Gspread):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) <= 1:
-        Metrics().print_data()
-    else:
-        try:
-            obj = Metrics(config_file=sys.argv[1])
-            obj.write()
-        except Exception as e:
-            print(traceback.format_exc())
-            webhook_url = getattr(obj, 'webhook_url', None)
-            if webhook_url:
-                import requests
+    config_file = None
+    if len(sys.argv) > 1:
+        config_file = sys.argv[1]
+    obj = Metrics(config_file=config_file)
+    if (
+        obj.sheet_name is None
+        and obj.sheet_url is None
+        and obj.sheet_key is None
+    ):
+        obj.print_data()
+        sys.exit(0)
+    try:
+        obj.write()
+    except Exception as e:
+        print(traceback.format_exc())
+        webhook_url = getattr(obj, 'webhook_url', None)
+        if webhook_url:
+            import requests
 
-                requests.post(
-                    webhook_url,
-                    json={'text': f'Error at {__file__}: {e}'},
-                    timeout=60,
-                )
-            sys.exit(1)
+            requests.post(
+                webhook_url,
+                json={'text': f'Error at {__file__}: {e}'},
+                timeout=60,
+            )
+        sys.exit(1)
