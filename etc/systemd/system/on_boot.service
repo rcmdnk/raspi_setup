@@ -1,0 +1,11 @@
+[Unit]
+Description = Send Slack notification on boot
+After = network-online.target
+Wants = network-online.target
+
+[Service]
+Type = oneshot
+ExecStart = PREFIX_BIN/on_boot /etc/conf.d/on_boot.conf
+
+[Install]
+WantedBy=multi-user.target

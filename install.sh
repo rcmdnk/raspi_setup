@@ -100,7 +100,8 @@ for f in ./etc/systemd/system/*;do
       && [ "$name" != "amedas.service" ] \
       && [ "$name" != "mhz19.service" ] \
       && [ "$name" != "metrics.service" ] \
-      && [ "$name" != "check.service" ];then
+      && [ "$name" != "check.service" ] \
+      && [ "$name" != "on_boot.service" ];then
     services=("${services[@]}" "$name")
   fi
 done
