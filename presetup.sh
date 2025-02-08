@@ -50,18 +50,14 @@ if ! grep -q "dtoverlay=pi3-miniuart-bt" /boot/firmware/config.txt;then
 fi
 
 # Enable Watchdog
-if ! grep -q "^dtparam=watchdog=on" /boot/firmware/config.txt;then
-  echo "$ sudo sh -c \"echo 'dtparam=watchdog=on' >> /boot/firmware/config.txt\""
-  sudo sh -c "echo 'dtparam=watchdog=on' >> /boot/firmware/config.txt"
-  sudo sh -c "echo '' >> /boot/firmware/config.txt"
-fi
-
-# Heartbeat with Broadcom chip Module
-if [ -f /etc/modprobe.d/bcm2835-wdt.conf ];then
-  echo "$ sudo sh -c \"echo 'options bcm2835 heartbeat=10 nowayout=0' > /etc/modprobe.d/bcm2835-wdt.conf\""
-  sudo sh -c "echo 'options bcm2835 heartbeat=10 nowayout=0' > /etc/modprobe.d/bcm2835-wdt.conf"
-  cmd sudo sed -i -e "s/^.*RuntimeWatchdogSec=.*/RuntimeWatchdogSec=5/g" /etc/systemd/system.conf
-fi
+cmd sudo apt install watchdog
+cmd sudo systemctl enable watchdog
+cmd sudo systemctl start watchdog
+cmd sudo sed -i -e "s/^.*watchdog-device.*=.*/watchdog-device                = \/dev\/watchdog/g" /etc/watchdog.conf
+cmd sudo sed -i -e "s/^.*max-load-1.*=.*/max-load-1             = 24/g" /etc/watchdog.conf
+cmd sudo modprobe bcm2835_wdt
+echo "$ sudo sh -c \"echo 'bcm2835_wdt' >> /etc/modules\""
+sudo sh -c "echo 'bcm2835_wdt' >> /etc/modules"
 
 # journald log size
 cmd sudo sed -i -e "s/^.*SystemMaxUse=.*/SystemMaxUse=${LOG_SIZE}/g" /etc/systemd/journald.conf
