@@ -6,4 +6,4 @@ Type = oneshot
 ExecStart = PREFIX_BIN/check /etc/conf.d/check.conf
 
 [Install]
-WantedBy=multi-user.target
+WantedBy = multi-user.target

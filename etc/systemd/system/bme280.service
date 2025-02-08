@@ -6,4 +6,4 @@ Type = oneshot
 ExecStart = PREFIX_BIN/bme280 /etc/conf.d/bme280.conf
 
 [Install]
-WantedBy=multi-user.target
+WantedBy = multi-user.target

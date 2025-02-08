@@ -6,4 +6,4 @@ Type = oneshot
 ExecStart = PREFIX_BIN/amedas /etc/conf.d/amedas.conf
 
 [Install]
-WantedBy=multi-user.target
+WantedBy = multi-user.target
