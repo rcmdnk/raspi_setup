@@ -1,5 +1,5 @@
 [Unit]
-Description = Send Slack notification on boot
+Description = Workflow on boot
 After = network-online.target
 Wants = network-online.target
 
