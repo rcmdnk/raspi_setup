@@ -30,7 +30,7 @@ mh-z19==3.1.6
     # via raspi-setup (pyproject.toml)
 oauthlib==3.2.2
     # via requests-oauthlib
-psutil==6.1.1
+psutil==7.0.0
     # via raspi-setup (pyproject.toml)
 pyasn1==0.6.1
     # via
