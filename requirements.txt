@@ -54,7 +54,7 @@ rpi-lcd==0.0.3
     # via raspi-setup (pyproject.toml)
 rsa==4.9
     # via google-auth
-setuptools==75.8.0
+setuptools==80.7.1
     # via colorzero
 smbus==1.1.post2
     # via rpi-lcd
