@@ -64,5 +64,5 @@ speedtest-cli==2.1.3
     # via raspi-setup (pyproject.toml)
 tsd2gspread==0.3.0
     # via raspi-setup (pyproject.toml)
-urllib3==2.3.0
+urllib3==2.6.0
     # via requests
