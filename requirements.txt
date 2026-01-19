@@ -32,7 +32,7 @@ oauthlib==3.2.2
     # via requests-oauthlib
 psutil==6.1.1
     # via raspi-setup (pyproject.toml)
-pyasn1==0.6.1
+pyasn1==0.6.2
     # via
     #   pyasn1-modules
     #   rsa
