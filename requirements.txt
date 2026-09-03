@@ -22,7 +22,7 @@ gpiozero==2.0.1
     # via mh-z19
 gspread==6.1.4
     # via tsd2gspread
-idna==3.10
+idna==3.15
     # via requests
 lgpio==0.2.2.0
     # via mh-z19
