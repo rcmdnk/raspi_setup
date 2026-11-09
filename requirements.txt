@@ -28,7 +28,7 @@ lgpio==0.2.2.0
     # via mh-z19
 mh-z19==3.1.6
     # via raspi-setup (pyproject.toml)
-oauthlib==3.2.2
+oauthlib==4.0.0
     # via requests-oauthlib
 psutil==6.1.1
     # via raspi-setup (pyproject.toml)
